@@ -5,9 +5,30 @@ class Sudoku:
         self.known = puz
         # Possible values for unknown cells
         self.guess = []
-        self.initGuess()
         # Guess cells with single value
         self.single = []
+        self.initGuess()
+
+    def getRow(self, r, c):
+        # --- Returns the row containing the given cell --- #
+        temp = []
+        for n in range(9):
+            temp += [[r, n]]
+        return temp
+
+    def getColumn(self, r, c):
+        # --- Returns the column containing the given cell --- #
+        temp = []
+        for n in range(9):
+            temp += [[n, c]]
+        return temp
+
+    def getBox(self, r, c):
+        # --- Returns the box containing the given cell --- #
+        temp = []
+        for n in range(9):
+            temp += [[3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3]]
+        return temp
 
     def initGuess(self):
         # --- Initialize values in guess  --- #
@@ -124,37 +145,43 @@ class Sudoku:
 
     def hSing(self):
         # --- Fill cells containing hidden singles --- #
+        bLst = [[0, 0], [0, 3], [0, 6], [3, 0], [3, 3], [3, 6], [6, 0], [6, 3], [6, 6]]
         # Go through 9 rows, columns, and boxes
         for m in range(9):
             # Go through each number 1-9
             for n in range(1, 10):
+                # Rows
                 rCnt = []
-                rIndex = 0
                 # Go through each of the 9 elements in the row
                 for c in range(9):
                     item = self.guess[m][c]
                     if isinstance(item, list):
                         if n in item:
-                            rCnt += [rIndex]
-                    # else:
-                    #     if n in self.known[m][c]:
-                    #         rCnt += [-1*rIndex]
-                    rIndex += 1
+                            rCnt += [[m, c]]
+                if len(rCnt) == 1:
+                    self.fillCell(rCnt[0][0], rCnt[0][1], n)
+                # Columns
                 cCnt = []
-                cIndex = 0
                 # Go through each of the 9 elements in the column
                 for r in range(9):
                     item = self.guess[r][m]
                     if isinstance(item, list):
                         if n in item:
-                            rCnt += [rIndex]
-                    # else:
-                    #     if n in self.known[r][m]:
-                    #         rCnt += [-1*rIndex]
-                    rIndex += 1
+                            rCnt += [[r, m]]
+                if len(cCnt) == 1:
+                    self.fillCell(cCnt[0][0], cCnt[0][1], n)
+                # Boxes
                 bCnt = []
-                bIndex = 0
+                r = bLst[m][0]
+                c = bLst[m][1]
                 # Go through each of the 9 elements in the box
+                for k in range(9):
+                    item = self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3]
+                    if isinstance(item, list):
+                        if n in item:
+                            bCnt += [[r + ceil((k + 1) / 3) - 1, c + k % 3]]
+                if len(bCnt) == 1:
+                    self.fillCell(bCnt[0][0], bCnt[0][1], n)
 
 
 
