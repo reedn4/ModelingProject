@@ -260,6 +260,44 @@ class Sudoku:
                                     if box[c][1] in temp:
                                         temp.remove(box[c][1])
 
+    def pointPair(self):
+        bLst = [[0, 0], [0, 3], [0, 6], [3, 0], [3, 3], [3, 6], [6, 0], [6, 3], [6, 6]]
+        for box in bLst:
+            # Set Box
+            r = box[0]
+            c = box[1]
+            for n in range(1,10):
+                indN = []
+                for k in range(9):
+                    rT = r + ceil((k + 1) / 3) - 1
+                    cT = c + k % 3
+                    if isinstance(self.guess[rT][cT], list):
+                        if n in self.guess[rT][cT]:
+                            indN += [[rT, cT]]
+                if len(indN) > 0:
+                    row = True
+                    col = True
+                    rLst = []
+                    cLst = []
+                    for item in indN:
+                        rLst += [item[0]]
+                        cLst += [item[1]]
+                        if indN[0][0] != rLst[-1]:
+                            row = False
+                        if indN[0][1] != cLst[-1]:
+                            col = False
+                    if row:
+                        for m in range(9):
+                            if isinstance(self.guess[rLst[0]][m], list):
+                                if n in self.guess[rLst[0]][m] and m not in cLst:
+                                    self.guess[rLst[0]][m].remove(n)
+
+                    if col:
+                        for m in range(9):
+                            if isinstance(self.guess[m][cLst[0]], list):
+                                if n in self.guess[m][cLst[0]] and m not in rLst:
+                                    self.guess[m][cLst[0]].remove(n)
+
 
 
 
