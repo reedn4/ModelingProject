@@ -9,26 +9,26 @@ class Sudoku:
         self.single = []
         self.initGuess()
 
-    def getRow(self, r, c):
-        # --- Returns the row containing the given cell --- #
-        temp = []
-        for n in range(9):
-            temp += [[r, n]]
-        return temp
-
-    def getColumn(self, r, c):
-        # --- Returns the column containing the given cell --- #
-        temp = []
-        for n in range(9):
-            temp += [[n, c]]
-        return temp
-
-    def getBox(self, r, c):
-        # --- Returns the box containing the given cell --- #
-        temp = []
-        for n in range(9):
-            temp += [[3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3]]
-        return temp
+    # def getRow(self, r, c):
+    #     # --- Returns the row containing the given cell --- #
+    #     temp = []
+    #     for n in range(9):
+    #         temp += [[r, n]]
+    #     return temp
+    #
+    # def getColumn(self, r, c):
+    #     # --- Returns the column containing the given cell --- #
+    #     temp = []
+    #     for n in range(9):
+    #         temp += [[n, c]]
+    #     return temp
+    #
+    # def getBox(self, r, c):
+    #     # --- Returns the box containing the given cell --- #
+    #     temp = []
+    #     for n in range(9):
+    #         temp += [[3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3]]
+    #     return temp
 
     def initGuess(self):
         # --- Initialize values in guess  --- #
@@ -185,18 +185,81 @@ class Sudoku:
 
     def nPair(self):
         # --- Update guesses based on naked pairs --- #
+        bLst = [[0, 0], [0, 3], [0, 6], [3, 0], [3, 3], [3, 6], [6, 0], [6, 3], [6, 6]]
+        # Go through all 9 rows, columns, and boxes
         for n in range(9):
-            # Rows
-            row = self.guess()[n]
-            done = []
+            # Set row
+            row = self.guess[n]
+            doneR = []
+            # Set Column
+            col = [k[n] for k in self.guess]
+            doneC = []
+            # Set Box
+            r = bLst[n][0]
+            c = bLst[n][1]
+            box = [self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3] for k in range(9)]
+            doneB = []
+            # Go through each cell in the row, column, and box
             for c in range(9):
-                if isinstance(row[c],list):
+                # Row
+                # Check if there are two guesses for the cell
+                if isinstance(row[c], list) and len(row[c]) == 2:
+                    # All cells in the row except the current cell
                     lst = row[:c]+row[(c+1):]
-                    match = lst.index(row[c])
-                    if match >= c:
-                        match += 1
-                    if match not in done:
-                        done += [match]
+                    # Check for matching pair
+                    if row[c] in lst:
+                        # Find any matching cell in the row
+                        match = lst.index(row[c])
+                        # Fix index to account for removed cell
+                        if match >= c:
+                            match += 1
+                        # Check to see if pair was already found
+                        if match not in doneR:
+                            # Add cell to found list
+                            doneR += [match]
+                            # delete any other instances of numbers in pair
+                            for temp in row:
+                                # Check that the cell isn't the pair
+                                if temp != row[c] and isinstance(temp, list):
+                                    # Check for first number in pair
+                                    if row[c][0] in temp:
+                                        # Remove number from guess
+                                        temp.remove(row[c][0])
+                                    # Check for the second number in pair
+                                    if row[c][1] in temp:
+                                        # Remove number from guess
+                                        temp.remove(row[c][1])
+                # Column (Same technique as used for the row - see above comments)
+                if isinstance(col[c], list) and len(col[c]) == 2:
+                    lst = col[:c]+col[(c+1):]
+                    if col[c] in lst:
+                        match = lst.index(col[c])
+                        if match >= c:
+                            match += 1
+                        if match not in doneC:
+                            doneC += [match]
+                            for temp in col:
+                                if temp != col[c] and isinstance(temp, list):
+                                    if col[c][0] in temp:
+                                        temp.remove(col[c][0])
+                                    if col[c][1] in temp:
+                                        temp.remove(col[c][1])
+                # Box (Same technique as used for the row - see above comments)
+                if isinstance(box[c], list) and len(box[c]) == 2:
+                    lst = box[:c]+box[(c+1):]
+                    if box[c] in lst:
+                        match = lst.index(box[c])
+                        if match >= r:
+                            match += 1
+                        if match not in doneB:
+                            doneB += [match]
+                            for temp in box:
+                                if temp != box[c] and isinstance(temp, list):
+                                    if box[c][0] in temp:
+                                        temp.remove(box[c][0])
+                                    if box[c][1] in temp:
+                                        temp.remove(box[c][1])
+
 
 
 
