@@ -183,6 +183,20 @@ class Sudoku:
                 if len(bCnt) == 1:
                     self.fillCell(bCnt[0][0], bCnt[0][1], n)
 
+    def nPair(self):
+        # --- Update guesses based on naked pairs --- #
+        for n in range(9):
+            # Rows
+            row = self.guess()[n]
+            done = []
+            for c in range(9):
+                if isinstance(row[c],list):
+                    lst = row[:c]+row[(c+1):]
+                    match = lst.index(row[c])
+                    if match >= c:
+                        match += 1
+                    if match not in done:
+                        done += [match]
 
 
 
