@@ -218,17 +218,23 @@ class Sudoku:
                             # Add cell to found list
                             doneR += [match]
                             # delete any other instances of numbers in pair
-                            for temp in row:
+                            for k in range(len(row)):
                                 # Check that the cell isn't the pair
-                                if temp != row[c] and isinstance(temp, list):
+                                if row[k] != row[c] and isinstance(row[k], list):
                                     # Check for first number in pair
-                                    if row[c][0] in temp:
+                                    if row[c][0] in row[k]:
                                         # Remove number from guess
-                                        temp.remove(row[c][0])
+                                        row[k].remove(row[c][0])
+                                        # Check for naked single
+                                        if len(self.guess[n][k]) == 1:
+                                            self.single += [[n, k]]
                                     # Check for the second number in pair
-                                    if row[c][1] in temp:
+                                    if row[c][1] in row[k]:
                                         # Remove number from guess
-                                        temp.remove(row[c][1])
+                                        row[k].remove(row[c][1])
+                                        # Check for naked single
+                                        if len(self.guess[n][k]) == 1:
+                                            self.single += [[n, k]]
                 # Column (Same technique as used for the row - see above comments)
                 if isinstance(col[c], list) and len(col[c]) == 2:
                     lst = col[:c]+col[(c+1):]
@@ -238,12 +244,16 @@ class Sudoku:
                             match += 1
                         if match not in doneC:
                             doneC += [match]
-                            for temp in col:
-                                if temp != col[c] and isinstance(temp, list):
-                                    if col[c][0] in temp:
-                                        temp.remove(col[c][0])
-                                    if col[c][1] in temp:
-                                        temp.remove(col[c][1])
+                            for k in range(len(col)):
+                                if col[k] != col[c] and isinstance(col[k], list):
+                                    if col[c][0] in col[k]:
+                                        col[k].remove(col[c][0])
+                                        if len(self.guess[k][n]) == 1:
+                                            self.single += [[k, n]]
+                                    if col[c][1] in col[k]:
+                                        col[k].remove(col[c][1])
+                                        if len(self.guess[k][n]) == 1:
+                                            self.single += [[k, n]]
                 # Box (Same technique as used for the row - see above comments)
                 if isinstance(box[c], list) and len(box[c]) == 2:
                     lst = box[:c]+box[(c+1):]
@@ -253,50 +263,186 @@ class Sudoku:
                             match += 1
                         if match not in doneB:
                             doneB += [match]
-                            for temp in box:
-                                if temp != box[c] and isinstance(temp, list):
-                                    if box[c][0] in temp:
-                                        temp.remove(box[c][0])
-                                    if box[c][1] in temp:
-                                        temp.remove(box[c][1])
+                            for k in range(len(box)):
+                                if box[k] != box[c] and isinstance(box[k], list):
+                                    if box[c][0] in box[k]:
+                                        box[k].remove(box[c][0])
+                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3]) == 1:
+                                            self.single += [[r + ceil((k + 1) / 3) - 1, c + k % 3]]
+                                    if box[c][1] in box[k]:
+                                        box[k].remove(box[c][1])
+                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3]) == 1:
+                                            self.single += [[r + ceil((k + 1) / 3) - 1, c + k % 3]]
 
     def pointPair(self):
+        # --- Update guesses based on pointing pairs --- #
+        # Top left location of each box
         bLst = [[0, 0], [0, 3], [0, 6], [3, 0], [3, 3], [3, 6], [6, 0], [6, 3], [6, 6]]
+        # Go through each box
         for box in bLst:
             # Set Box
             r = box[0]
             c = box[1]
-            for n in range(1,10):
+            # Go through all possible values 1-9
+            for n in range(1, 10):
                 indN = []
+                # Go through each cell in the box
                 for k in range(9):
+                    # Row number
                     rT = r + ceil((k + 1) / 3) - 1
+                    # Column number
                     cT = c + k % 3
+                    # Check if the cell value is already known
                     if isinstance(self.guess[rT][cT], list):
+                        # Check if the number is a possible cell value
                         if n in self.guess[rT][cT]:
                             indN += [[rT, cT]]
+                # Check for matches
                 if len(indN) > 0:
                     row = True
                     col = True
                     rLst = []
                     cLst = []
+                    # Go through each match
                     for item in indN:
                         rLst += [item[0]]
                         cLst += [item[1]]
+                        # Check if the matches are in the same row
                         if indN[0][0] != rLst[-1]:
                             row = False
+                        # Check if the matches are in the same column
                         if indN[0][1] != cLst[-1]:
                             col = False
+                    # If the matches are in the same row
                     if row:
+                        # Remove pair numbers from other cells in the row
                         for m in range(9):
+                            # Check if the cell value is already known
                             if isinstance(self.guess[rLst[0]][m], list):
+                                # Check if cell is not a pair and contains the first pair value
                                 if n in self.guess[rLst[0]][m] and m not in cLst:
+                                    # Remove value
                                     self.guess[rLst[0]][m].remove(n)
-
+                                    if len(self.guess[rLst[0]][m]) == 1:
+                                        self.single += [[rLst[0], m]]
+                    # If the matches in the same column
                     if col:
+                        # Remove pair numbers from other cells in the column
                         for m in range(9):
+                            # Check if the cell value is already known
                             if isinstance(self.guess[m][cLst[0]], list):
+                                # Check if cell is not a pair and contains the first pair value
                                 if n in self.guess[m][cLst[0]] and m not in rLst:
+                                    # Remove value
                                     self.guess[m][cLst[0]].remove(n)
+                                    if len(self.guess[m][cLst[0]]) == 1:
+                                        self.single += [[m, cLst[0]]]
+
+    def claimPair(self):
+        # --- Update guesses based on claiming pairs --- #
+        bLst = [0, 1, 2]
+        # Go through every value 1-9
+        for n in range(1, 10):
+            # Go through each of the 9 rows and columns
+            for k in range(9):
+                # Row
+                row = self.guess[k]
+                rLst = []
+                # Column
+                col = [item[k] for item in self.guess]
+                cLst = []
+                # Check for values in each cell
+                for c in range(9):
+                    # Row
+                    if isinstance(row[c], list):
+                        if n in row[c]:
+                            rLst += [c]
+                    # Column
+                    if isinstance(col[c], list):
+                        if n in col[c]:
+                            cLst += [c]
+                # Check if value is in the row
+                if len(rLst) > 0:
+                    # Check if values appear in the same box
+                    boxS = True
+                    for elem in rLst:
+                        if ceil((rLst[0] + 1) / 3) != ceil((elem + 1) / 3):
+                            boxS = False
+                    # If values are in the same box
+                    if boxS:
+                        removed = False
+                        # Find row span of the box
+                        indB = bLst.index(k % 3)
+                        addB = (ceil((k+1)/3) - 1) * 3
+                        # Find column span of the box
+                        initm = (ceil((rLst[0] + 1)/3) - 1) * 3
+                        # Go through all columns in the box
+                        for m in range(initm, initm + 3):
+                            # Check first row that is not the current row
+                            if isinstance(self.guess[bLst[indB - 1] + addB][m], list):
+                                # Check if cell contains the value
+                                if n in self.guess[bLst[indB - 1] + addB][m]:
+                                    # Remove value
+                                    self.guess[bLst[indB - 1] + addB][m].remove(n)
+                                    removed = True
+                                    # Check if there is a single possible value left
+                                    if len(self.guess[bLst[indB - 1] + addB][m]) == 1:
+                                        self.single += [[bLst[indB - 1] + addB, m]]
+                            # Check second row that is not the current row
+                            if isinstance(self.guess[bLst[indB - 2] + addB][m], list):
+                                # Check if cell contains the value
+                                if n in self.guess[bLst[indB - 2] + addB][m]:
+                                    # Remove value
+                                    self.guess[bLst[indB - 2] + addB][m].remove(n)
+                                    removed = True
+                                    # Check if there is a single possible value left
+                                    if len(self.guess[bLst[indB - 2] + addB][m]) == 1:
+                                        self.single += [[bLst[indB - 2] + addB, m]]
+                        if removed:
+                            print("row " + str(k + 1) + ": #" + str(n))
+                            print(rLst)
+                            print(self.displayG())
+                # Check if value is in the column
+                if len(cLst) > 0:
+                    # Check if values appear in the same box
+                    boxS = True
+                    for elem in cLst:
+                        if ceil((cLst[0] + 1) / 3) != ceil((elem + 1) / 3):
+                            boxS = False
+                    # If values are in the same box
+                    if boxS:
+                        removed = False
+                        # Find column span of the box
+                        indB = bLst.index(k % 3)
+                        addB = (ceil((k+1)/3) - 1) * 3
+                        # Find row span of the box
+                        initm = (ceil((cLst[0] + 1) / 3) - 1) * 3
+                        # Go through all rows of the box
+                        for m in range(initm, initm + 3):
+                            # Check first column that is not the current row
+                            if isinstance(self.guess[m][bLst[indB - 1] + addB], list):
+                                # Check if cell contains the value
+                                if n in self.guess[m][bLst[indB - 1] + addB]:
+                                    # Remove value
+                                    self.guess[m][bLst[indB - 1] + addB].remove(n)
+                                    removed = True
+                                    # Check if there is a single possible value left
+                                    if len(self.guess[m][bLst[indB - 1] + addB]) == 1:
+                                        self.single += [[m, bLst[indB - 1] + addB]]
+                            # Check second column that is not the current row
+                            if isinstance(self.guess[m][bLst[indB - 2] + addB], list):
+                                # Check if cell contains the value
+                                if n in self.guess[m][bLst[indB - 2] + addB]:
+                                    # Remove value
+                                    self.guess[m][bLst[indB - 2] + addB].remove(n)
+                                    removed = True
+                                    # Check if there is a single possible value left
+                                    if len(self.guess[m][bLst[indB - 2] + addB]) == 1:
+                                        self.single += [[m, bLst[indB - 2] + addB]]
+                        if removed:
+                            print("column " + str(k + 1) + ": #" + str(n))
+                            print(cLst)
+                            print(self.displayG())
 
 
 
