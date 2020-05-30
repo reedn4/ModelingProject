@@ -196,8 +196,8 @@ class Sudoku:
             doneC = []
             # Set Box
             r = bLst[n][0]
-            c = bLst[n][1]
-            box = [self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3] for k in range(9)]
+            cL = bLst[n][1]
+            box = [self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3] for k in range(9)]
             doneB = []
             # Go through each cell in the row, column, and box
             for c in range(9):
@@ -267,12 +267,12 @@ class Sudoku:
                                 if box[k] != box[c] and isinstance(box[k], list):
                                     if box[c][0] in box[k]:
                                         box[k].remove(box[c][0])
-                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3]) == 1:
-                                            self.single += [[r + ceil((k + 1) / 3) - 1, c + k % 3]]
+                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
+                                            self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
                                     if box[c][1] in box[k]:
                                         box[k].remove(box[c][1])
-                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][c + k % 3]) == 1:
-                                            self.single += [[r + ceil((k + 1) / 3) - 1, c + k % 3]]
+                                        if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
+                                            self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
 
     def pointPair(self):
         # --- Update guesses based on pointing pairs --- #
@@ -444,6 +444,122 @@ class Sudoku:
                             print(cLst)
                             print(self.displayG())
 
+    def nTriple(self):
+        # --- Update guesses based on naked triples --- #
+        bLst = [[0, 0], [0, 3], [0, 6], [3, 0], [3, 3], [3, 6], [6, 0], [6, 3], [6, 6]]
+        # Go through all 9 rows, columns, and boxes
+        for n in range(9):
+            # Set row
+            row = self.guess[n]
+            rowL = []
+            # Set Column
+            col = [k[n] for k in self.guess]
+            colL = []
+            # Set Box
+            r = bLst[n][0]
+            cL = bLst[n][1]
+            box = [self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3] for k in range(9)]
+            boxL = []
+            # Go through each cell in the row, column, and box
+            for c in range(9):
+                # Row
+                if len(row[c]) <= 3 and len(row[c]) > 0:
+                    for item in rowL:
+                        temp = []
+                        for itemS in item:
+                            temp += row[itemS]
+                        if len(list(dict.fromkeys(temp + row[c]))) <= 3:
+                            if len(row[item[0]]) > len(row[c]):
+                                item += [c]
+                            else:
+                                item.insert(0, c)
+                    rowL += [[c]]
+                # Column
+                if len(col[c]) <= 3 and len(col[c]) > 0:
+                    for item in colL:
+                        temp = []
+                        for itemS in item:
+                            temp += col[itemS]
+                        if len(list(dict.fromkeys(temp + col[c]))) <= 3:
+                            if len(col[item[0]]) > len(col[c]):
+                                item += [c]
+                            else:
+                                item.insert(0, c)
+                    colL += [[c]]
+                # Box
+                if len(box[c]) <= 3 and len(box[c]) > 0:
+                    for item in boxL:
+                        temp = []
+                        for itemS in item:
+                            temp += box[itemS]
+                        if len(list(dict.fromkeys(temp + box[c]))) <= 3:
+                            if len(box[item[0]]) > len(box[c]):
+                                item += [c]
+                            else:
+                                item.insert(0, c)
+                    boxL += [[c]]
+            # Check for naked triples in the row
+            for item in rowL:
+                if len(item) == 3:
+                    removed = False
+                    lst = []
+                    for sub in item:
+                        for num in row[sub]:
+                            if num not in lst:
+                                lst += [num]
+                    for k in range(9):
+                        if k not in item and isinstance(row[k], list):
+                            for val in lst:
+                                if val in row[k]:
+                                    row[k].remove(val)
+                                    removed = True
+                                    if len(self.guess[n][k]) == 1:
+                                        self.single += [[n, k]]
+                    # if removed:
+                    #     print("row "+str(n+1))
+                    #     print(lst)
+                    #     print(self.displayG())
 
+            # Check for naked triples in the column
+            for item in colL:
+                if len(item) == 3:
+                    removed = False
+                    lst = []
+                    for sub in item:
+                        for num in col[sub]:
+                            if num not in lst:
+                                lst += [num]
+                    for k in range(9):
+                        if k not in item and isinstance(col[k], list):
+                            for val in lst:
+                                if val in col[k]:
+                                    removed = True
+                                    col[k].remove(val)
+                                    if len(self.guess[k][n]) == 1:
+                                        self.single += [[k, n]]
+                    # if removed:
+                    #     print("column "+str(n+1))
+                    #     print(lst)
+                    #     print(self.displayG())
 
-
+            # Check for naked triples in the box
+            for item in boxL:
+                if len(item) == 3:
+                    removed = False
+                    lst = []
+                    for sub in item:
+                        for num in box[sub]:
+                            if num not in lst:
+                                lst += [num]
+                    for k in range(9):
+                        if k not in item and isinstance(box[k], list):
+                            for val in lst:
+                                if val in box[k]:
+                                    box[k].remove(val)
+                                    removed = True
+                                    if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
+                                        self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
+                    # if removed:
+                    #     print("box "+str(n+1))
+                    #     print(lst)
+                    #     print(self.displayG())

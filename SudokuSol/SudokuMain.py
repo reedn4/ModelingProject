@@ -44,23 +44,19 @@ row8 = ['_', 1, 9, '_', '_', '_', '_', '_', '_']
 row9 = ['_', '_', '_', '_', 5, 4, 9, '_', '_']
 lst = [row1, row2, row3, row4, row5, row6, row7, row8, row9]
 
+row1 = ['_', 4, 8, 3, 5, 1, '_', '_', 7]
+row2 = ['_', '_', 1, 6, 9, 7, '_', '_', '_']
+row3 = ['_', 7, '_', '_', 2, '_', 1, 3, '_']
+row4 = ['_', '_', 2, '_', '_', 3, '_', '_', '_']
+row5 = [7, '_', '_', 2, '_', '_', '_', 8, 3]
+row6 = [8, '_', 3, 9, 7, '_', 4, 1, 2]
+row7 = ['_', '_', 6, 5, 4, 2, '_', 7, 9]
+row8 = ['_', 2, '_', '_', '_', '_', 5, '_', '_']
+row9 = [5, '_', '_', '_', '_', 9, '_', '_', 1]
+lst = [row1, row2, row3, row4, row5, row6, row7, row8, row9]
+
 sud = Sudoku(lst)
-# print(sud.display())
-# print(sud.single)
-# print(sud.displayG())
-sud.nSing()
-# print(sud.display())
-# print(sud.displayG())
-sud.hSing()
-sud.nSing()
-# print(sud.display())
-# print(sud.displayG())
-# sud.nSing()
-# sud.hSing()
-# sud.pointPair()
-# print(sud.displayG())
-# print(sud.displayG())
-# print(sud.single)
-print(sud.displayG())
-sud.claimPair()
 print(sud.display())
+print(sud.displayG())
+sud.nTriple()
+print(sud.displayG())
