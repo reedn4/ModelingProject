@@ -1,12 +1,13 @@
-from math import floor,ceil
+from math import floor, ceil
 class Sudoku:
-    def __init__(self,puz):
+    def __init__(self, puz, but = []):
         # Known values of puzzle
         self.known = puz
         # Possible values for unknown cells
         self.guess = []
         # Guess cells with single value
         self.single = []
+        self.buttons = but
         self.initGuess()
 
     # def getRow(self, r, c):
@@ -71,6 +72,8 @@ class Sudoku:
         # --- Add cell value to known values of puzzle --- #
         # Fill cell in known list
         self.known[r][c] = num
+        if len(self.buttons) > 0:
+            self.buttons[r][c].config(text=str(num), command=None)
         # Delete guess list for cell
         self.guess[r][c] = 'null'
         # Update guess list for change
@@ -563,3 +566,31 @@ class Sudoku:
                     #     print("box "+str(n+1))
                     #     print(lst)
                     #     print(self.displayG())
+
+    def xWing(self):
+        # --- Update guesses based on x-wing --- #
+        comb = [[0, 1], [1, 2], [0, 2]]
+        for n in range(1, 10):
+            for k in range(9):
+                rLst = []
+                cLst = []
+                offset = 0
+                for m in range(3):
+                    # Row
+                    if n in self.guess[k][offset + m]:
+                        rLst += [offset + m]
+                    # Column
+                    if n in self.guess[offset + m][k]:
+                        cLst[0] += [offset + m]
+                if len(rLst) >= 2:
+                    for i in range(len(rLst)**2/3):
+                        iM = "stuck"
+
+    def hPair(self):
+        # --- Update guesses based on hidden pairs --- #
+        return
+
+    def nQuad(self):
+        # --- Update guesses based on naked quads --- #
+        return
+
