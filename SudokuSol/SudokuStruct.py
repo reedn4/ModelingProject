@@ -1,6 +1,6 @@
 from math import floor, ceil
 class Sudoku:
-    def __init__(self, puz, but = []):
+    def __init__(self, puz, but = [], lab = []):
         # Known values of puzzle
         self.known = puz
         # Possible values for unknown cells
@@ -8,6 +8,7 @@ class Sudoku:
         # Guess cells with single value
         self.single = []
         self.buttons = but
+        self.gLabels = lab
         self.initGuess()
 
     # def getRow(self, r, c):
@@ -64,7 +65,7 @@ class Sudoku:
                     temp += [tempL]
                     # Check if there is only a single possibility
                     if len(tempL) == 1:
-                        self.single += [[r,c]]
+                        self.single += [[r, c]]
             tempF += [temp]
         self.guess = tempF
 
@@ -76,6 +77,9 @@ class Sudoku:
             self.buttons[r][c].config(text=str(num), command=None)
         # Delete guess list for cell
         self.guess[r][c] = 'null'
+        self.updateGL(r, c)
+        if [r, c] in self.single:
+            self.single.remove([r,c])
         # Update guess list for change
         for n in range(9):
             # Row update
@@ -83,6 +87,7 @@ class Sudoku:
             if isinstance(rTemp, list):
                 if num in rTemp:
                     rTemp.remove(num)
+                    self.updateGL(r, n)
                     if len(rTemp) == 1:
                         self.single += [[r, n]]
             # Column update
@@ -90,6 +95,7 @@ class Sudoku:
             if isinstance(cTemp, list):
                 if num in cTemp:
                     cTemp.remove(num)
+                    self.updateGL(n, c)
                     if len(cTemp) == 1:
                         self.single += [[n, c]]
             # Box update
@@ -97,6 +103,7 @@ class Sudoku:
             if isinstance(bTemp, list):
                 if num in bTemp:
                     bTemp.remove(num)
+                    self.updateGL(3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3)
                     if len(bTemp) == 1:
                         self.single += [[3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3]]
 
@@ -135,6 +142,23 @@ class Sudoku:
             strT += ' |-------|-------|-------|-------|-------|-------|-------|-------|-------|\n'
         return strT
 
+    def updateGL(self, r, c):
+        if len(self.gLabels) > 0:
+            temp = self.guess[r][c]
+            strT = ''
+            if isinstance(temp, list):
+                for n in range(1, 10):
+                    strT += '  '
+                    if n in temp:
+                        strT += str(n)
+                    else:
+                        strT += '  '
+                    if n % 3 == 0 and n < 9:
+                        strT += ' \n'
+                self.gLabels[r][c].config(text=strT)
+            else:
+                self.gLabels[r][c].config(text=strT, bg='gray25')
+
     def nSing(self):
         # --- Fill cells containing naked singles --- #
         while len(self.single) > 0:
@@ -143,8 +167,6 @@ class Sudoku:
             c = self.single[0][1]
             # Fill cell of known puzzle
             self.fillCell(r, c, self.guess[r][c][0])
-            # Delete from list of single cells
-            self.single = self.single[1:]
 
     def hSing(self):
         # --- Fill cells containing hidden singles --- #
@@ -228,6 +250,7 @@ class Sudoku:
                                     if row[c][0] in row[k]:
                                         # Remove number from guess
                                         row[k].remove(row[c][0])
+                                        self.updateGL(n, k)
                                         # Check for naked single
                                         if len(self.guess[n][k]) == 1:
                                             self.single += [[n, k]]
@@ -235,6 +258,7 @@ class Sudoku:
                                     if row[c][1] in row[k]:
                                         # Remove number from guess
                                         row[k].remove(row[c][1])
+                                        self.updateGL(n, k)
                                         # Check for naked single
                                         if len(self.guess[n][k]) == 1:
                                             self.single += [[n, k]]
@@ -251,10 +275,12 @@ class Sudoku:
                                 if col[k] != col[c] and isinstance(col[k], list):
                                     if col[c][0] in col[k]:
                                         col[k].remove(col[c][0])
+                                        self.updateGL(k, n)
                                         if len(self.guess[k][n]) == 1:
                                             self.single += [[k, n]]
                                     if col[c][1] in col[k]:
                                         col[k].remove(col[c][1])
+                                        self.updateGL(k, n)
                                         if len(self.guess[k][n]) == 1:
                                             self.single += [[k, n]]
                 # Box (Same technique as used for the row - see above comments)
@@ -270,10 +296,12 @@ class Sudoku:
                                 if box[k] != box[c] and isinstance(box[k], list):
                                     if box[c][0] in box[k]:
                                         box[k].remove(box[c][0])
+                                        self.updateGL(r + ceil((k + 1) / 3) - 1, cL + k % 3)
                                         if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
                                             self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
                                     if box[c][1] in box[k]:
                                         box[k].remove(box[c][1])
+                                        self.updateGL(r + ceil((k + 1) / 3) - 1, cL + k % 3)
                                         if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
                                             self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
 
@@ -326,6 +354,7 @@ class Sudoku:
                                 if n in self.guess[rLst[0]][m] and m not in cLst:
                                     # Remove value
                                     self.guess[rLst[0]][m].remove(n)
+                                    self.updateGL(rLst[0], m)
                                     if len(self.guess[rLst[0]][m]) == 1:
                                         self.single += [[rLst[0], m]]
                     # If the matches in the same column
@@ -338,6 +367,7 @@ class Sudoku:
                                 if n in self.guess[m][cLst[0]] and m not in rLst:
                                     # Remove value
                                     self.guess[m][cLst[0]].remove(n)
+                                    self.updateGL(m, cLst[0])
                                     if len(self.guess[m][cLst[0]]) == 1:
                                         self.single += [[m, cLst[0]]]
 
@@ -388,6 +418,7 @@ class Sudoku:
                                     # Remove value
                                     self.guess[bLst[indB - 1] + addB][m].remove(n)
                                     removed = True
+                                    self.updateGL(bLst[indB - 1] + addB, m)
                                     # Check if there is a single possible value left
                                     if len(self.guess[bLst[indB - 1] + addB][m]) == 1:
                                         self.single += [[bLst[indB - 1] + addB, m]]
@@ -398,13 +429,14 @@ class Sudoku:
                                     # Remove value
                                     self.guess[bLst[indB - 2] + addB][m].remove(n)
                                     removed = True
+                                    self.updateGL(bLst[indB - 2] + addB, m)
                                     # Check if there is a single possible value left
                                     if len(self.guess[bLst[indB - 2] + addB][m]) == 1:
                                         self.single += [[bLst[indB - 2] + addB, m]]
-                        if removed:
-                            print("row " + str(k + 1) + ": #" + str(n))
-                            print(rLst)
-                            print(self.displayG())
+                        # if removed:
+                        #     print("row " + str(k + 1) + ": #" + str(n))
+                        #     print(rLst)
+                        #     print(self.displayG())
                 # Check if value is in the column
                 if len(cLst) > 0:
                     # Check if values appear in the same box
@@ -429,6 +461,7 @@ class Sudoku:
                                     # Remove value
                                     self.guess[m][bLst[indB - 1] + addB].remove(n)
                                     removed = True
+                                    self.updateGL(m, bLst[indB - 1] + addB)
                                     # Check if there is a single possible value left
                                     if len(self.guess[m][bLst[indB - 1] + addB]) == 1:
                                         self.single += [[m, bLst[indB - 1] + addB]]
@@ -439,13 +472,14 @@ class Sudoku:
                                     # Remove value
                                     self.guess[m][bLst[indB - 2] + addB].remove(n)
                                     removed = True
+                                    self.updateGL(m, bLst[indB - 2] + addB)
                                     # Check if there is a single possible value left
                                     if len(self.guess[m][bLst[indB - 2] + addB]) == 1:
                                         self.single += [[m, bLst[indB - 2] + addB]]
-                        if removed:
-                            print("column " + str(k + 1) + ": #" + str(n))
-                            print(cLst)
-                            print(self.displayG())
+                        # if removed:
+                        #     print("column " + str(k + 1) + ": #" + str(n))
+                        #     print(cLst)
+                        #     print(self.displayG())
 
     def nTriple(self):
         # --- Update guesses based on naked triples --- #
@@ -516,6 +550,7 @@ class Sudoku:
                                 if val in row[k]:
                                     row[k].remove(val)
                                     removed = True
+                                    self.updateGL(n, k)
                                     if len(self.guess[n][k]) == 1:
                                         self.single += [[n, k]]
                     # if removed:
@@ -538,6 +573,7 @@ class Sudoku:
                                 if val in col[k]:
                                     removed = True
                                     col[k].remove(val)
+                                    self.updateGL(k, n)
                                     if len(self.guess[k][n]) == 1:
                                         self.single += [[k, n]]
                     # if removed:
@@ -560,6 +596,7 @@ class Sudoku:
                                 if val in box[k]:
                                     box[k].remove(val)
                                     removed = True
+                                    self.updateGL(r + ceil((k + 1) / 3) - 1, cL + k % 3)
                                     if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
                                         self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
                     # if removed:
