@@ -171,7 +171,6 @@ sud.buttons = sButtons
 
 # Create frame for number guesses
 oFrame = LabelFrame(mainFrame, text="Numbers", padx=10, pady=10)
-# oFrame.grid(row=4, column=0, columnspan=3)
 # Create number buttons
 nButtons = []
 for c in range(9):
@@ -180,7 +179,6 @@ for c in range(9):
 pBor = 5
 # Create frame for techniques
 tFrame = LabelFrame(mainFrame, text="Solution Techniques", padx=5, pady=5)
-# tFrame.grid(row=4, column=0, columnspan=3)
 # Naked Singles
 nakS = Button(tFrame, text="Naked Singles", command=sud.nSing, height=2, width=12, bd=pBor)
 nakS.grid(row=0, column=0, padx=2, pady=2)

@@ -460,7 +460,6 @@ class Sudoku:
                                 if n in self.guess[m][bLst[indB - 1] + addB]:
                                     # Remove value
                                     self.guess[m][bLst[indB - 1] + addB].remove(n)
-                                    removed = True
                                     self.updateGL(m, bLst[indB - 1] + addB)
                                     # Check if there is a single possible value left
                                     if len(self.guess[m][bLst[indB - 1] + addB]) == 1:
@@ -471,15 +470,10 @@ class Sudoku:
                                 if n in self.guess[m][bLst[indB - 2] + addB]:
                                     # Remove value
                                     self.guess[m][bLst[indB - 2] + addB].remove(n)
-                                    removed = True
                                     self.updateGL(m, bLst[indB - 2] + addB)
                                     # Check if there is a single possible value left
                                     if len(self.guess[m][bLst[indB - 2] + addB]) == 1:
                                         self.single += [[m, bLst[indB - 2] + addB]]
-                        # if removed:
-                        #     print("column " + str(k + 1) + ": #" + str(n))
-                        #     print(cLst)
-                        #     print(self.displayG())
 
     def nTriple(self):
         # --- Update guesses based on naked triples --- #
@@ -538,7 +532,6 @@ class Sudoku:
             # Check for naked triples in the row
             for item in rowL:
                 if len(item) == 3:
-                    removed = False
                     lst = []
                     for sub in item:
                         for num in row[sub]:
@@ -549,19 +542,12 @@ class Sudoku:
                             for val in lst:
                                 if val in row[k]:
                                     row[k].remove(val)
-                                    removed = True
                                     self.updateGL(n, k)
                                     if len(self.guess[n][k]) == 1:
                                         self.single += [[n, k]]
-                    # if removed:
-                    #     print("row "+str(n+1))
-                    #     print(lst)
-                    #     print(self.displayG())
-
             # Check for naked triples in the column
             for item in colL:
                 if len(item) == 3:
-                    removed = False
                     lst = []
                     for sub in item:
                         for num in col[sub]:
@@ -571,20 +557,13 @@ class Sudoku:
                         if k not in item and isinstance(col[k], list):
                             for val in lst:
                                 if val in col[k]:
-                                    removed = True
                                     col[k].remove(val)
                                     self.updateGL(k, n)
                                     if len(self.guess[k][n]) == 1:
                                         self.single += [[k, n]]
-                    # if removed:
-                    #     print("column "+str(n+1))
-                    #     print(lst)
-                    #     print(self.displayG())
-
             # Check for naked triples in the box
             for item in boxL:
                 if len(item) == 3:
-                    removed = False
                     lst = []
                     for sub in item:
                         for num in box[sub]:
@@ -595,33 +574,13 @@ class Sudoku:
                             for val in lst:
                                 if val in box[k]:
                                     box[k].remove(val)
-                                    removed = True
                                     self.updateGL(r + ceil((k + 1) / 3) - 1, cL + k % 3)
                                     if len(self.guess[r + ceil((k + 1) / 3) - 1][cL + k % 3]) == 1:
                                         self.single += [[r + ceil((k + 1) / 3) - 1, cL + k % 3]]
-                    # if removed:
-                    #     print("box "+str(n+1))
-                    #     print(lst)
-                    #     print(self.displayG())
 
     def xWing(self):
         # --- Update guesses based on x-wing --- #
-        comb = [[0, 1], [1, 2], [0, 2]]
-        for n in range(1, 10):
-            for k in range(9):
-                rLst = []
-                cLst = []
-                offset = 0
-                for m in range(3):
-                    # Row
-                    if n in self.guess[k][offset + m]:
-                        rLst += [offset + m]
-                    # Column
-                    if n in self.guess[offset + m][k]:
-                        cLst[0] += [offset + m]
-                if len(rLst) >= 2:
-                    for i in range(len(rLst)**2/3):
-                        iM = "stuck"
+        return
 
     def hPair(self):
         # --- Update guesses based on hidden pairs --- #
