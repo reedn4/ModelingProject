@@ -1,6 +1,6 @@
 from math import floor, ceil
 class Sudoku:
-    def __init__(self, puz, but = [], lab = []):
+    def __init__(self, puz, but=[], lab=[]):
         # Known values of puzzle
         self.known = puz
         # Possible values for unknown cells
@@ -10,27 +10,6 @@ class Sudoku:
         self.buttons = but
         self.gLabels = lab
         self.initGuess()
-
-    # def getRow(self, r, c):
-    #     # --- Returns the row containing the given cell --- #
-    #     temp = []
-    #     for n in range(9):
-    #         temp += [[r, n]]
-    #     return temp
-    #
-    # def getColumn(self, r, c):
-    #     # --- Returns the column containing the given cell --- #
-    #     temp = []
-    #     for n in range(9):
-    #         temp += [[n, c]]
-    #     return temp
-    #
-    # def getBox(self, r, c):
-    #     # --- Returns the box containing the given cell --- #
-    #     temp = []
-    #     for n in range(9):
-    #         temp += [[3 * floor(r / 3) + ceil((n + 1) / 3) - 1, 3 * floor(c / 3) + n % 3]]
-    #     return temp
 
     def initGuess(self):
         # --- Initialize values in guess  --- #
@@ -403,7 +382,6 @@ class Sudoku:
                             boxS = False
                     # If values are in the same box
                     if boxS:
-                        removed = False
                         # Find row span of the box
                         indB = bLst.index(k % 3)
                         addB = (ceil((k+1)/3) - 1) * 3
@@ -433,10 +411,6 @@ class Sudoku:
                                     # Check if there is a single possible value left
                                     if len(self.guess[bLst[indB - 2] + addB][m]) == 1:
                                         self.single += [[bLst[indB - 2] + addB, m]]
-                        # if removed:
-                        #     print("row " + str(k + 1) + ": #" + str(n))
-                        #     print(rLst)
-                        #     print(self.displayG())
                 # Check if value is in the column
                 if len(cLst) > 0:
                     # Check if values appear in the same box
@@ -446,7 +420,6 @@ class Sudoku:
                             boxS = False
                     # If values are in the same box
                     if boxS:
-                        removed = False
                         # Find column span of the box
                         indB = bLst.index(k % 3)
                         addB = (ceil((k+1)/3) - 1) * 3

@@ -25,12 +25,10 @@ disOpt = ["m", "ft"]
 def update():
     global t, uCol
     figure = plt.Figure(figsize=(7, 7), dpi=100)
-    # uCol.integ()
     shear = figure.add_subplot(211)
     shear.plot(t, list(map(uCol.integF, t)))
     shear.set_xlabel("Location (" + dUnit + ")")
     shear.set_ylabel("Shear ("+sUnit+")")
-    # uCol.integ()
     moment = figure.add_subplot(212)
     moment.plot(t, list(map(uCol.integS, t)))
     moment.set_xlabel("Location (" + dUnit + ")")
